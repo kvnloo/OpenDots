@@ -30,6 +30,7 @@ import type { CallReceipt, Conversation, Dot } from '../shared/types';
 import { Mascot } from './Mascot';
 import { useVoice } from './useVoice';
 import { CallView } from './CallView';
+import { shouldSubmitComposerKey } from './composer-key';
 export function Chat({
   thread,
   dot,
@@ -416,7 +417,14 @@ export function Chat({
             maxLength={4000}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (
+                shouldSubmitComposerKey({
+                  key: e.key,
+                  shiftKey: e.shiftKey,
+                  isComposing: e.nativeEvent.isComposing,
+                  keyCode: e.nativeEvent.keyCode,
+                })
+              ) {
                 e.preventDefault();
                 e.currentTarget.form?.requestSubmit();
               }
