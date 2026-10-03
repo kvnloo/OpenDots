@@ -30,6 +30,7 @@ import type { CallReceipt, Conversation, Dot } from '../shared/types';
 import { Mascot } from './Mascot';
 import { useVoice } from './useVoice';
 import { CallView } from './CallView';
+import { isNearScrollEnd } from './chat-scroll';
 export function Chat({
   thread,
   dot,
@@ -95,6 +96,7 @@ export function Chat({
   const voice = useVoice(thread.id, onSaved, agent.messages.at(-1)?.id);
   const sent = useRef(false);
   const bottom = useRef<HTMLDivElement>(null);
+  const followLatest = useRef(true);
   useEffect(() => {
     const subscription = copilotkit.subscribe({
       onError: ({ error }) => setError(error.message),
@@ -162,7 +164,8 @@ export function Chat({
     }
   }, [loaded, contextReady, paused, initialPrompt]);
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: 'instant', block: 'end' });
+    if (followLatest.current)
+      bottom.current?.scrollIntoView({ behavior: 'instant', block: 'end' });
   }, [agent.messages.length, running]);
   useEffect(() => {
     if (paused && voice.status !== 'idle') void voice.end();
@@ -307,7 +310,12 @@ export function Chat({
           </a>
         </div>
       )}
-      <div className="chat-transcript">
+      <div
+        className="chat-transcript"
+        onScroll={(event) => {
+          followLatest.current = isNearScrollEnd(event.currentTarget);
+        }}
+      >
         {!visible.length && (
           <div className="chat-welcome">
             <span className="eyebrow">A LITTLE SPACE TO THINK</span>
