@@ -20,6 +20,9 @@ export function useVoice(
   );
   const [caption, setCaption] = useState('');
   const [userCaption, setUserCaption] = useState('');
+  const [completedCaption, setCompletedCaption] = useState<
+    { speaker: 'user' | 'assistant'; text: string } | undefined
+  >();
   const session = useRef<
     | {
         pc: RTCPeerConnection;
@@ -133,6 +136,7 @@ export function useVoice(
     setPhase('listening');
     setCaption('');
     setUserCaption('');
+    setCompletedCaption(undefined);
     let stream: MediaStream | undefined;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -216,9 +220,12 @@ export function useVoice(
           ) {
             current.transcript.push(`You: ${data.transcript}`);
             setUserCaption(data.transcript);
+            setCompletedCaption({ speaker: 'user', text: data.transcript });
           }
-          if (data.type === 'response.output_audio_transcript.done')
+          if (data.type === 'response.output_audio_transcript.done') {
             current.transcript.push(`Dot: ${data.transcript}`);
+            setCompletedCaption({ speaker: 'assistant', text: data.transcript });
+          }
         }
         if (data.type === 'error')
           setError(
@@ -330,6 +337,7 @@ export function useVoice(
     phase,
     caption,
     userCaption,
+    completedCaption,
     toggleMute,
     toggleSpeaker,
   };
