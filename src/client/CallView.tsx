@@ -69,7 +69,7 @@ export function CallView({
         <p role="status">{label}</p>
       </div>
       {!minimized && (
-        <div className="call-caption" aria-live="polite">
+        <div className="call-caption">
           {voice.userCaption && (
             <p className="call-user-caption">
               <small>You</small>
@@ -82,11 +82,13 @@ export function CallView({
           </p>
         </div>
       )}
-      {voice.error && (
-        <p className="call-warning" role="alert">
-          {voice.error}
+      {voice.completedCaption && (
+        <p className="sr-only" role="status" aria-atomic="true">
+          {voice.completedCaption.speaker === 'user' ? 'You' : dot.name}:{' '}
+          {voice.completedCaption.text}
         </p>
       )}
+      {voice.error && <p className="call-warning">{voice.error}</p>}
       <div className="call-controls">
         <button
           aria-label={
