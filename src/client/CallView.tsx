@@ -11,6 +11,7 @@ import {
 import { Mascot } from './Mascot';
 import type { Dot } from '../shared/types';
 import type { useVoice } from './useVoice';
+import { completedVoiceAnnouncement } from './voice-announcement';
 
 export function CallView({
   dot,
@@ -43,6 +44,10 @@ export function CallView({
             : voice.phase === 'thinking'
               ? 'Working on it…'
               : 'Listening';
+  const captionAnnouncement = completedVoiceAnnouncement(
+    voice.completedCaption,
+    dot.name,
+  );
   return (
     <section
       className={`call-view ${minimized ? 'minimized' : ''}`}
@@ -69,7 +74,7 @@ export function CallView({
         <p role="status">{label}</p>
       </div>
       {!minimized && (
-        <div className="call-caption" aria-live="polite">
+        <div className="call-caption">
           {voice.userCaption && (
             <p className="call-user-caption">
               <small>You</small>
@@ -82,11 +87,12 @@ export function CallView({
           </p>
         </div>
       )}
-      {voice.error && (
-        <p className="call-warning" role="alert">
-          {voice.error}
+      {captionAnnouncement && (
+        <p className="sr-only" role="status" aria-atomic="true">
+          {captionAnnouncement}
         </p>
       )}
+      {voice.error && <p className="call-warning">{voice.error}</p>}
       <div className="call-controls">
         <button
           aria-label={
