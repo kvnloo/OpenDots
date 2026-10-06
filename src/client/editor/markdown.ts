@@ -36,6 +36,7 @@ const allowed = new Set([
   'link',
   'taskList',
   'taskItem',
+  'checkbox',
 ]);
 export function inspectMarkdown(source: string): {
   supported: boolean;
