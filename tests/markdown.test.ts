@@ -45,3 +45,16 @@ it('preserves reference definitions through explicit source fallback, including 
     inspectMarkdown('[Linked][ref]\n\n[ref]: https://example.com').supported,
   ).toBe(false);
 });
+it('opens lists that mix bullets and checklist items in the visual editor', () => {
+  const source =
+    '| Option | Cost |\n| ------ | ---- |\n| A      | 1    |\n\n- Decide by Friday\n- [ ] Confirm budget\n- [x] Draft options';
+  expect(inspectMarkdown(source)).toEqual({ supported: true });
+  const roundtrip = markdownManager.serialize(markdownManager.parse(source));
+  expect(roundtrip).toContain('Decide by Friday');
+  expect(roundtrip).toContain('- [ ] Confirm budget');
+  expect(roundtrip).toContain('- [x] Draft options');
+  expect(
+    inspectMarkdown('- one\n- [ ] ![remote](https://example.com/a.png)')
+      .supported,
+  ).toBe(false);
+});
